@@ -10,7 +10,7 @@ import math
 import random
 import time
 
-# Setup 64X47
+# Setup 64X47 1024
 WIDTH = 1024
 HEIGHT = 750
 FPS = 30
@@ -69,12 +69,243 @@ MAP = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 # Globals
 random.seed(time.time())
 global game_folder
-# enemy: slime = 2 ghost = 3 fly = 0 block = 1
-waves = [WIDTH * .5,HEIGHT * .6,3,1,1],[WIDTH * 0.5,HEIGHT * 0.8,4,2,1],[WIDTH * 0.6,HEIGHT * 0.5,5,1,1],[WIDTH * 0.5,HEIGHT * 0.3,6,0,1],[WIDTH * 0.6,HEIGHT * 0.7,7,3,1],[WIDTH * 0.8,HEIGHT * 0.8,8,0,1],[WIDTH * 0.5,HEIGHT * 0.5,9,0,1],[WIDTH * 0.5,HEIGHT * 0.2,10,0,1],[WIDTH * 0.5,HEIGHT * 0.2,11,0,1],[WIDTH * 0.5,HEIGHT * 0.2,12,0,1],[WIDTH * 0.5,HEIGHT * 0.2,13,0,1],[WIDTH * 0.5,HEIGHT * 0.2,13,0,1],[WIDTH * 0.5,HEIGHT * 0.2,14,0,1],[WIDTH * 0.5,HEIGHT * 0.2,15,0,1],[WIDTH * 0.5,HEIGHT * 0.2,16,0,1]
+# enemy: slime = 2 ghost = 3 fly = 0 block = 1 [x,y,time,enemytype,alive]
+waves = \
+[[[WIDTH * 0.5, HEIGHT * 0.6,7,0,1], #wave 0 boss
+[WIDTH * 0.5,HEIGHT * 0.8,8,0,1]],
+[[WIDTH * 0.05, HEIGHT * 0.16,7,0,1], #wave 1
+[WIDTH * 0.95,HEIGHT * 0.16,8,0,1],
+[WIDTH * 0.95,HEIGHT * 0.84,9,0,1],
+[WIDTH * 0.04,HEIGHT * 0.84,10,0,1],
+[WIDTH * 0.15,HEIGHT * 0.21,11,0,1],
+[WIDTH * 0.15,HEIGHT * 0.8,11,0,1],
+[WIDTH * 0.83,HEIGHT * 0.21,11,0,1],
+[WIDTH * 0.83,HEIGHT * 0.8,11,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,15,0,1],
+[WIDTH * 0.5,HEIGHT * 0.13,16,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,17,0,1],
+[WIDTH * 0.15,HEIGHT * 0.13,18,0,1],
+[WIDTH * 0.283,HEIGHT * 0.97,19,0,1],
+[WIDTH * 0.69,HEIGHT * 0.97,20,0,1],
+[WIDTH * 0.83,HEIGHT * 0.97,21,0,1],
+[WIDTH * 0.95,HEIGHT * 0.97,22,0,1]],
+[[WIDTH * 0.04, HEIGHT * 0.13,5,0,1], #wave 2
+[WIDTH * 0.04,HEIGHT * 0.23,5,0,1],
+[WIDTH * 0.04,HEIGHT * 0.375,5,0,1],
+[WIDTH * 0.04,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.04,HEIGHT * 0.65,5,0,1],
+[WIDTH * 0.04,HEIGHT * 0.83,5,0,1],
+ [WIDTH * 0.95,HEIGHT * 0.13,5,0,1],
+[WIDTH * 0.95,HEIGHT * 0.23,5,0,1],
+[WIDTH * 0.95,HEIGHT * 0.375,5,0,1],
+[WIDTH * 0.95,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.95,HEIGHT * 0.65,5,0,1],
+[WIDTH * 0.95,HEIGHT * 0.83,5,0,1],
+[WIDTH * 0.04,HEIGHT * 0.55,7.5,1,1],
+[WIDTH * 0.95,HEIGHT * 0.97,7.5,1,1],
+[WIDTH * 0.4,HEIGHT * 0.13,7.5,1,1],
+[WIDTH * 0.6,HEIGHT * 0.55,7.5,1,1],
+[WIDTH * 0.6,HEIGHT * 0.55,14,0,1],
+[WIDTH * 0.6,HEIGHT * 0.55,14,0,1],
+[WIDTH * 0.4,HEIGHT * 0.55,14,0,1],
+[WIDTH * 0.4,HEIGHT * 0.55,14,0,1],
+[WIDTH * 0.4,HEIGHT * 0.55,14,0,1],
+[WIDTH * 0.6,HEIGHT * 0.55,14,0,1]],
+[[WIDTH * 0.283, HEIGHT * 0.375,7,0,1],#wave 3 #flys
+[WIDTH * 0.283, HEIGHT * 0.375,7,0,1],
+[WIDTH * 0.283, HEIGHT * 0.375,7,0,1],
+[WIDTH * 0.283, HEIGHT * 0.375,7,0,1],
+[WIDTH * 0.69,HEIGHT * 0.375,7.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.375,7.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.375,7.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.375,7.5,0,1],
+[WIDTH * 0.283,HEIGHT * 0.65,8,0,1],
+[WIDTH * 0.283,HEIGHT * 0.65,8,0,1],
+[WIDTH * 0.283,HEIGHT * 0.65,8,0,1],
+[WIDTH * 0.283,HEIGHT * 0.65,8,0,1],
+[WIDTH * 0.69,HEIGHT * 0.65,8.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.65,8.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.65,8.5,0,1],
+[WIDTH * 0.69,HEIGHT * 0.65,8.5,0,1],
+ #blocks
+[WIDTH * 0.15,HEIGHT * 0.96,11,1,1],
+[WIDTH * 0.95,HEIGHT * 0.96,12,1,1],
+[WIDTH * 0.15,HEIGHT * 0.13,13,1,1],
+[WIDTH * 0.95,HEIGHT * 0.13,14,1,1],
+[WIDTH * 0.15,HEIGHT * 0.96,25,1,1],
+[WIDTH * 0.95,HEIGHT * 0.96,26,1,1],
+[WIDTH * 0.15,HEIGHT * 0.13,27,1,1],
+[WIDTH * 0.95,HEIGHT * 0.13,28,1,1],
+[WIDTH * 0.15,HEIGHT * 0.96,35,1,1],
+[WIDTH * 0.95,HEIGHT * 0.96,36,1,1],
+[WIDTH * 0.15,HEIGHT * 0.13,37,1,1],
+[WIDTH * 0.95,HEIGHT * 0.13,38,1,1],
+[WIDTH * 0.5,HEIGHT * 0.7,45,1,1]],
+[[WIDTH * 0.5, HEIGHT * 0.6,5,0,1], #wave 4
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,5,0,1],
+[WIDTH * 0.15,HEIGHT * 0.96,10,2,1],
+[WIDTH * 0.95,HEIGHT * 0.96,10,2,1],
+[WIDTH * 0.15,HEIGHT * 0.13,10,2,1],
+[WIDTH * 0.95,HEIGHT * 0.13,10,2,1],
+[WIDTH * 0.5,HEIGHT * 0.2,22,2,1]],
+[[WIDTH * 0.5, HEIGHT * 0.6,7,1,1], #wave 5
+[WIDTH * 0.04,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.95,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.15,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.83,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.5,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.3,HEIGHT * 0.89,7,1,1],
+[WIDTH * 0.7,HEIGHT * 0.89,7,1,1],
+#Slime
+[WIDTH * 0.1,HEIGHT * 0.04,12,2,1],
+[WIDTH * 0.2,HEIGHT * 0.04,12.2,2,1],
+[WIDTH * 0.3,HEIGHT * 0.04,12.4,2,1],
+[WIDTH * 0.4,HEIGHT * 0.04,12.6,2,1],
+[WIDTH * 0.6,HEIGHT * 0.04,12.8,2,1],
+[WIDTH * 0.7,HEIGHT * 0.04,13,2,1],
+[WIDTH * 0.8,HEIGHT * 0.04,13.2,2,1],
+[WIDTH * 0.9,HEIGHT * 0.04,13.4,2,1]],
+[[WIDTH * 0.5, HEIGHT * 0.6,5,0,1], #wave 6 ghost
+[WIDTH * 0.95,HEIGHT * 0.16,5.1,0,1],
+[WIDTH * 0.95,HEIGHT * 0.84,5.2,0,1],
+[WIDTH * 0.04,HEIGHT * 0.84,5.3,0,1],
+[WIDTH * 0.15,HEIGHT * 0.21,5.4,0,1],
+[WIDTH * 0.15,HEIGHT * 0.8,5.5,0,1],
+[WIDTH * 0.83,HEIGHT * 0.21,5.6,0,1],
+[WIDTH * 0.83,HEIGHT * 0.8,5.7,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,5.8,0,1],
+[WIDTH * 0.5,HEIGHT * 0.13,5.9,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,6,0,1],
+[WIDTH * 0.15,HEIGHT * 0.13,6.1,0,1],
+[WIDTH * 0.283,HEIGHT * 0.97,6.2,0,1],
+[WIDTH * 0.69,HEIGHT * 0.97,6.3,0,1],
+[WIDTH * 0.83,HEIGHT * 0.97,6.4,0,1],
+[WIDTH * 0.05,HEIGHT * 0.55,7,3,1],
+[WIDTH * 0.95,HEIGHT * 0.55,7,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,7,3,1],
+[WIDTH * 0.5,HEIGHT * 0.2,10,0,1],
+[WIDTH * 0.5,HEIGHT * 0.55,25,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,25.5,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,26,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,26.5,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,27,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,27.5,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,28,3,1],
+[WIDTH * 0.5,HEIGHT * 0.55,28.5,3,1]
+],
+[
+[WIDTH * 0.95, HEIGHT * 0.16,5,0,1], #wave 7 all enemy
+[WIDTH * 0.95,HEIGHT * 0.16,5.1,0,1],
+[WIDTH * 0.95,HEIGHT * 0.84,5.2,0,1],
+[WIDTH * 0.04,HEIGHT * 0.84,5.3,0,1],
+[WIDTH * 0.15,HEIGHT * 0.21,5.4,0,1],
+[WIDTH * 0.15,HEIGHT * 0.8,5.5,0,1],
+[WIDTH * 0.83,HEIGHT * 0.21,5.6,0,1],
+[WIDTH * 0.83,HEIGHT * 0.8,5.7,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,5.8,0,1],
+[WIDTH * 0.5,HEIGHT * 0.13,5.9,0,1],
+[WIDTH * 0.283,HEIGHT * 0.13,6,0,1],
+[WIDTH * 0.15,HEIGHT * 0.13,6.1,0,1],
+[WIDTH * 0.283,HEIGHT * 0.97,6.2,0,1],
+[WIDTH * 0.69,HEIGHT * 0.97,6.3,0,1],
+[WIDTH * 0.83,HEIGHT * 0.97,6.4,0,1],
+ 
+[WIDTH * 0.5,HEIGHT * 0.55,7,2,1],
+[WIDTH * 0.5,HEIGHT * 0.55,8,2,1],
+[WIDTH * 0.69,HEIGHT * 0.55,8,1,1],
+[WIDTH * 0.5,HEIGHT * 0.55,9,2,1],
+[WIDTH * 0.5,HEIGHT * 0.55,10,2,1],
+[WIDTH * 0.5,HEIGHT * 0.55,11,2,1],
+[WIDTH * 0.283,HEIGHT * 0.55,11,1,1],
+[WIDTH * 0.5,HEIGHT * 0.55,12,2,1],
+[WIDTH * 0.5,HEIGHT * 0.55,13,2,1],
+
+[WIDTH * 0.04,HEIGHT * 0.89,20,1,1],
+[WIDTH * 0.95,HEIGHT * 0.89,21,1,1],
+[WIDTH * 0.15,HEIGHT * 0.89,22,1,1],
+[WIDTH * 0.83,HEIGHT * 0.89,23,1,1],
+[WIDTH * 0.5,HEIGHT * 0.89,24,1,1],
+[WIDTH * 0.3,HEIGHT * 0.89,25,1,1],
+[WIDTH * 0.7,HEIGHT * 0.89,26,1,1],
+ 
+[WIDTH * 0.283, HEIGHT * 0.375,30,3,1],
+[WIDTH * 0.283, HEIGHT * 0.375,31,3,1],
+[WIDTH * 0.283, HEIGHT * 0.375,32,3,1],
+[WIDTH * 0.69,HEIGHT * 0.375,33,3,1],
+[WIDTH * 0.69,HEIGHT * 0.375,33,3,1],
+[WIDTH * 0.69,HEIGHT * 0.375,33,3,1],
+[WIDTH * 0.69,HEIGHT * 0.375,36,3,1],
+[WIDTH * 0.283,HEIGHT * 0.65,37,3,1],
+[WIDTH * 0.283,HEIGHT * 0.65,38,3,1],
+[WIDTH * 0.283,HEIGHT * 0.65,39,3,1],
+[WIDTH * 0.283,HEIGHT * 0.65,40,3,1],
+[WIDTH * 0.69,HEIGHT * 0.65,41,3,1],
+[WIDTH * 0.69,HEIGHT * 0.65,42,3,1],
+[WIDTH * 0.69,HEIGHT * 0.65,43,3,1],
+[WIDTH * 0.69,HEIGHT * 0.65,45,3,1],
+ 
+[WIDTH * 0.5,HEIGHT * 0.2,50,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,50,0,1]
+ ],
+[
+[WIDTH * 0.5, HEIGHT * 0.6,7,0,1], #wave 8
+[WIDTH * 0.5,HEIGHT * 0.8,8,0,1],
+[WIDTH * 0.6,HEIGHT * 0.5,9,0,1],
+[WIDTH * 0.5,HEIGHT * 0.3,10,0,1],
+[WIDTH * 0.6,HEIGHT * 0.7,11,0,1],
+[WIDTH * 0.8,HEIGHT * 0.8,12,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,13,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,14,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,15,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,16,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,17,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,18,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,19,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,20,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,21,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,22,0,1]
+ ],
+[
+[WIDTH * 0.5, HEIGHT * 0.6,7,0,1], #wave 9
+[WIDTH * 0.5,HEIGHT * 0.8,8,0,1],
+[WIDTH * 0.6,HEIGHT * 0.5,9,0,1],
+[WIDTH * 0.5,HEIGHT * 0.3,10,0,1],
+[WIDTH * 0.6,HEIGHT * 0.7,11,0,1],
+[WIDTH * 0.8,HEIGHT * 0.8,12,0,1],
+[WIDTH * 0.5,HEIGHT * 0.5,13,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,14,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,15,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,16,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,17,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,18,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,19,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,20,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,21,0,1],
+[WIDTH * 0.5,HEIGHT * 0.2,22,0,1]
+]]
+
 
 
 game_folder = os.path.dirname(__file__)
 location = os.path.join(game_folder, "pic_bmp")
+sounds = os.path.join(game_folder, "sounds")
 
 pygame.init()
 pygame.joystick.init()
@@ -220,7 +451,7 @@ class SLIME(pygame.sprite.Sprite):
         dist2 = math.sqrt((x2_dis * x2_dis) + (y2_dis * y2_dis))
         if (pygame.sprite.spritecollideany(self,water_sprites)): self.MS = self.slowspeed
         elif(self.MS): self.MS = self.constMS
-        if (pygame.sprite.spritecollideany(self,wall_sprites)): self.MS = self.slowspeed * 0.7
+        if (pygame.sprite.spritecollideany(self,wall_sprites)): self.MS = self.slowspeed * 0.5
         elif(self.MS): self.MS = self.constMS
         if (dist1 <= dist2): #player one closer
             rads = math.atan2(y1_dis , (x1_dis))
@@ -262,11 +493,11 @@ class FLY(pygame.sprite.Sprite):
         self.time = time.clock()
         if (self.time_new <= self.time):
             self.time_new = time.clock() + (random.randint(10,40) / 10)
-            self.x_dis = random.randint(0,20) / 10
-            self.y_dis = random.randint(0,20) / 10
+            self.x_dis = round(random.randint(-20,20) / 10)
+            self.y_dis = round(random.randint(-20,20) / 10)
         
-        self.rect.x += self.x_dis
-        self.rect.y += self.y_dis
+        self.rect.x += round(self.x_dis)
+        self.rect.y += round(self.y_dis)
         if (self.rect.bottom >= HEIGHT) or (self.rect.top <= 0):
             self.rect.y -=  self.y_dis
         if (self.rect.right > WIDTH) or (self.rect.left < 0):
@@ -399,11 +630,11 @@ class GHOST(pygame.sprite.Sprite):
             self.time_new = self.time + self.rand_timer_1
             self.invis = 1
             self.image = self.image2
-            self.MS += 1.5
+            self.MS += 0.1
         elif((self.time_new - self.rand_timer_1 + 2) >= self.time):
             self.invis = 1
             self.image = self.image2
-            self.MS += 1.5
+            self.MS += 0.1
         else:
             self.MS = self.constMS
             self.invis = 0
@@ -420,7 +651,6 @@ class GHOST(pygame.sprite.Sprite):
         dist1 = math.sqrt((x1_dis * x1_dis) + (y1_dis * y1_dis))
         dist2 = math.sqrt((x2_dis * x2_dis) + (y2_dis * y2_dis))
         if (pygame.sprite.spritecollideany(self,water_sprites)): self.MS = self.slowspeed
-        else: self.MS = self.constMS
         if (dist1 <= dist2): #player one closer
             rads = math.atan2(y1_dis , (x1_dis))
             x = round(math.cos(rads) * self.MS)
@@ -468,8 +698,8 @@ class Bullet(pygame.sprite.Sprite):
         self.damage = damage
         angle = self.angle * 57.3 #convert to degrees
         
-        self.xspeed = math.cos(self.angle) * 21 # speed of bullet
-        self.yspeed = math.sin(self.angle) * 21
+        self.xspeed = math.cos(self.angle) * 23 # speed of bullet
+        self.yspeed = math.sin(self.angle) * 23
         self.image_1 = player_img_1
         self.image = pygame.transform.rotate(self.image_1,-1 * angle)
         self.image.set_colorkey(BLACK)
@@ -483,6 +713,7 @@ class Bullet(pygame.sprite.Sprite):
         if (pygame.sprite.spritecollideany(self,enemy_sprites)):
             points += 1
             self.kill()
+            dead_sound.play()
         if (self.rect.bottom >= HEIGHT + 100) or (self.rect.top <= -100):
                 self.kill()
         if (self.rect.right > WIDTH + 100) or (self.rect.left < -100):
@@ -507,6 +738,8 @@ class Player(pygame.sprite.Sprite):
         self.time = time.clock()
         self.current_time = 0
         self.damage_time = 0
+        self.ammo_accel = 0
+        self.sound_1 = 1
         
         self.image_D = player_img_2
         self.image_N = player_img_1
@@ -516,6 +749,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.regen_h = 0
         self.regen_a = 0
+        self.dead = 0
     
     def get_x(self):
         return self.rect.x
@@ -538,6 +772,9 @@ class Player(pygame.sprite.Sprite):
     def get_regen_bullets(self):
         return self.regen_a
     
+    def set_dead(self, var):
+        self.dead = var
+    
     def get_regen_health(self):
         return self.regen_h
     
@@ -545,11 +782,18 @@ class Player(pygame.sprite.Sprite):
         self.time = time.clock()
         #Check if alive
         if (self.health <= 0):
+            self.health = self.MH
             self.kill()
             self.rect.y = -10000 #To make the enemys attack current target
             self.rect.x = -10000
+            self.dead = 1
         #for regen
-        self.regen_a += self.regen_ammo
+        if (self.rect.y == -10000 and not self.dead):
+            self.rect.y = HEIGHT * 0.5
+            self.rect.x = WIDTH * 0.45
+        
+        self.ammo_accel += 0.055
+        self.regen_a += self.regen_ammo + self.ammo_accel
         self.regen_h += self.regen_health
         if ((self.regen_a >= 149)):
             if ((self.bullets < self.MB)): self.bullets += 1
@@ -557,6 +801,9 @@ class Player(pygame.sprite.Sprite):
         if ((self.regen_h >= 149)):
             if((self.health < self.MH)): self.health += 1
             self.regen_h = 0
+        if (self.bullets == self.MB and self.sound_1):
+            self.sound_1 = 0
+            reload_sound.play()
         if (pygame.sprite.spritecollideany(self,water_sprites)): self.MS = self.slowspeed
         else: self.MS = self.constMS
         x = round(self.MS * x)
@@ -585,6 +832,7 @@ class Player(pygame.sprite.Sprite):
         if(pygame.sprite.spritecollideany(self,enemy_sprites) and (self.damage_time < self.time)):
             self.image = self.image_D
             self.damage_time = self.time + 1.25
+            hurt_sound.play()
             if(pygame.sprite.spritecollideany(self,fly_sprites)):
                 self.health -= 1
             if(pygame.sprite.spritecollideany(self,block_sprites)):
@@ -607,9 +855,12 @@ class Player(pygame.sprite.Sprite):
         if (shoot and self.shoot_runonce and self.bullets > 0):
             self.shoot_runonce = 0
             self.bullets -= 1
+            self.sound_1 = 1
+            shoot_sound.play()
             #shooting bullet
-            __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img,1)
+            __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,1)
             bullet_sprites.add(__bullet__)
+            self.ammo_accel = 0
         elif (not shoot):
             self.shoot_runonce = 1
             
@@ -653,34 +904,7 @@ def buttons(s,msg,x,y,w,h,ic,ac,number_1,action = None):
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
-# setup
-Start_BackGround = Background(os.path.join(location,'front_screen.bmp'), [0,0])
-l1_BackGround = Background(os.path.join(location,'level_1.bmp'), [0,0])
-l2_BackGround = Background(os.path.join(location,'level_2.bmp'), [0,0])
-#players
-p1_img = pygame.image.load(os.path.join(location,'chick.bmp')).convert()
-p2_img = pygame.image.load(os.path.join(location,'owl.bmp')).convert()
-p1d_img = pygame.image.load(os.path.join(location,'chick_d.bmp')).convert()
-p2d_img = pygame.image.load(os.path.join(location,'owl_d.bmp')).convert()
-#monsters
-m1_img = pygame.image.load(os.path.join(location,'ghost.bmp')).convert()
-m1_1_img = pygame.image.load(os.path.join(location,'ghost_d.bmp')).convert()
-m2_img = pygame.image.load(os.path.join(location,'slimeBlock.bmp')).convert()
-m2_2_img = pygame.image.load(os.path.join(location,'slimeBlockD.bmp')).convert()
-m3_img = pygame.image.load(os.path.join(location,'grassBlock.bmp')).convert()
-m3_3_img = pygame.image.load(os.path.join(location,'grassBlockD.bmp')).convert()
-m4_img = pygame.image.load(os.path.join(location,'fly.bmp')).convert()
-#walls
-wall_img = pygame.image.load(os.path.join(location,'wall_1.bmp')).convert()
-water_img = pygame.image.load(os.path.join(location,'water.bmp')).convert()
-#bullets
-bullet_img1 = pygame.image.load(os.path.join(location,'bullet.bmp')).convert()
-bullet_img2 = pygame.image.load(os.path.join(location,'bullet_1.bmp')).convert()
-#UI
-ammo_img = pygame.image.load(os.path.join(location,'ammo.bmp')).convert()
-hp_img = pygame.image.load(os.path.join(location,'health.bmp')).convert()
 
-pygame.joystick.init()
 
 def make_ghost(x,y,round):
     health = 3 + round
@@ -689,7 +913,7 @@ def make_ghost(x,y,round):
     enemy_sprites.add(dum)
 
 def make_block(x,y,round):
-    health = 5 + round
+    health = 4 + round
     dum = BLOCK(x,y,m3_img,m3_3_img, health)
     block_sprites.add(dum)
     enemy_sprites.add(dum)
@@ -707,16 +931,31 @@ def make_fly(x,y,round):
     enemy_sprites.add(dum)
 
 def update_leaderboards():
-    global wave_num, points
-    message_display_1(20, ("Wave: " + str(wave_num)) ,WIDTH * .5, HEIGHT * .02, WHITE)
+    global wave_num, points, rounds
+    message_display_1(20, (" Wave: " + str(rounds) + "." + str(wave_num)) ,WIDTH * .5, HEIGHT * .02, WHITE)
     message_display_1(20, ("Points: " + str(points)) ,WIDTH * .5, HEIGHT * .05, WHITE)
 
+class StopWatch:
+    def __init__(self):
+        self.start()
+    def start(self):
+        self._startTime = time.time()
+    def getStartTime(self):
+        return self._startTime
+    def elapsed(self, prec=3):
+        prec = 3
+        diff= time.time() - self._startTime
+        return round(diff, prec)
+def round(n, p=0):
+    m = 10 ** p
+    return math.floor(n * m + 0.5) / m
 
 
 
 #Game_functions
 def create_map():
-    global MAP, wall_img, player_2, player_1, points
+    global MAP, wall_img, player_2, player_1, points, enemy_timer
+    enemy_timer.start()
     y = 0
     points = 0
     try:
@@ -748,7 +987,7 @@ def level_place_add(value):
 
 # (self,x,y,player_img_1,player_img_2,max_health,max_bullets,max_speed, regen_ammo, regen_health):
 def start_menu():
-    global p1_runonce, p2_runconce,joystick_0, joystick_1
+    global p1_runonce, p2_runonce,joystick_0, joystick_1
     screen.blit(Start_BackGround.image, Start_BackGround.rect)
     message_display_1(40, "Welcome to the shooting game brah",WIDTH * .5, HEIGHT * .2, WHITE)
     message_display_1(20, "Press start to continue",WIDTH * .5, HEIGHT * .8, WHITE)
@@ -772,7 +1011,7 @@ def start_menu():
             message_display_1(10, "Speed: 5",WIDTH * .2, HEIGHT * .65, GREEN)
             if (p1_runonce == 1):
                 global player_1
-                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img, 10, 8, 5, 100, 1.4)
+                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img, 7, 5, 5, 0.6, 0.3)
                 player_1_sprites.add(player_1)
                 p1_runonce = 0
             
@@ -787,82 +1026,106 @@ def start_menu():
             message_display_1(10, "Health: 3",WIDTH * .2, HEIGHT * .3, GREEN)
             message_display_1(10, "Bullets: 5",WIDTH * .2, HEIGHT * .325, GREEN)
             message_display_1(10, "Speed: 4",WIDTH * .2, HEIGHT * .35, GREEN)
-            if (p2_runconce == 1):
+            if (p2_runonce == 1):
                 global player_2
-                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img, 8, 10, 6, 190, 1)
+                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img, 5, 6, 6, .7, 0.2)
                 player_2_sprites.add(player_2)
                 p2_runonce = 0
     except:
         message_display_1(20, "Player two NOT connected",WIDTH * .2, HEIGHT * .4, RED)
 
-def enemy_creater(*list_1):
+def random_enemy_creater(*list_1):
     global enemy_timer
-    #enemy_timer = time.clock()
-    if(enemy_timer < (time.clock() - random.randint(5,40)/10)):
+    if(enemy_timer < (time.clock() - random.randint(30,90)/10)):
         enemy_timer = time.clock()
-        x = random.randint(1,3)
-        if (x == 1):          make_ghost(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
+        x = random.randint(1,4)
+        if (x == 1):          make_ghost(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
 
-        elif (x == 2):        make_slime(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
+        elif (x == 2):        make_slime(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
 
-        elif (x == 3):        make_block(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
+        elif (x == 3):        make_block(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
+    
+        elif (x == 4):        make_fly(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
 
-    """
-    for i in range(0,15):
-        if ((list_1[0][i][2] < enemy_timer) and list_1[0][i][4]):
-            list_1[0][i][4] = 0
-            if (list_1[0][i][3] == 0):
-                make_fly(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 1):
-                make_block(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 2):
-                make_slime(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 3):
-                make_ghost(list_1[0][i][0],list_1[0][i][1],0)
-    """
+def enemy_creater(list_1):
+    global enemy_timer, wave_num, max_time, rounds, player_1, player_2
+    if (not(len(enemy_sprites)) and (enemy_timer.elapsed() > list_1[wave_num][len(list_1[wave_num]) - 1][2])):
+        wave_num += 1
+        if (wave_num == 10):
+            wave_num = 0
+            rounds += 1
+            for n in range(0,9):
+                for i in range(0,len(list_1[n])):
+                    list_1[n][i][4] = 1
+        if (not len(player_1_sprites)):
+            player_1_sprites.add(player_1)
+            player_1.set_dead(0)
+        if (not len(player_2_sprites)):
+            player_2_sprites.add(player_2)
+            player_2.set_dead(0)
+            
+        enemy_timer.start()
+        next_wave_sound.play()
+        print("New round")
+    for i in range(0,len(list_1[wave_num])):
+        if ((list_1[wave_num][i][2] < enemy_timer.elapsed()) and list_1[wave_num][i][4]):
+            list_1[wave_num][i][4] = 0
+            if (list_1[wave_num][i][3] == 0):
+                make_fly(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+            elif (list_1[wave_num][i][3] == 1):
+                make_block(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+            elif (list_1[wave_num][i][3] == 2):
+                make_slime(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+            elif (list_1[wave_num][i][3] == 3):
+                make_ghost(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+
 
 def level_1():
     global map_runonce, player_2, player_1, joystick_0, joystick_1, waves
     enemy_creater(waves)
+    
     if (map_runonce):
+        next_wave_sound.play()
         map_runonce = 0
         create_map()
     screen.blit(l1_BackGround.image, l1_BackGround.rect)
     fire = 0
     try:
-        if (joystick_0.get_axis(5) > -0.5):
+        if (joystick_0.get_axis(5) > 0):
             fire = 1
         player_1_sprites.update(joystick_0.get_axis(0),joystick_0.get_axis(1),joystick_0.get_axis(2),joystick_0.get_axis(3),fire)
+    
     except:
         print("Player 1 not connected")
+    
     try:
         fire = 0
-        if (joystick_1.get_axis(5) > -0.5):
+        if (joystick_1.get_axis(5) > 0):
             fire = 1
         player_2_sprites.update(joystick_1.get_axis(0),joystick_1.get_axis(1),joystick_1.get_axis(2),joystick_1.get_axis(3),fire)
     except:
         print("Player 2 Not connected")
     fly_sprites.update()
-    
-    block_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
-    ghost_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
-    slime_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
-    UI_HP1_sprites.update(player_1.get_health())
-    UI_AP1_sprites.update(player_1.get_bullets())
-    UI_HP2_sprites.update(player_2.get_health())
-    UI_AP2_sprites.update(player_2.get_bullets())
-    #Regen
-    pygame.draw.rect(screen,RED,pygame.Rect(8,36,150,9),1)
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(8,46,150,9),1)
-    pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
+    try:
+        block_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
+        ghost_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
+        slime_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
+        UI_HP1_sprites.update(player_1.get_health())
+        UI_AP1_sprites.update(player_1.get_bullets())
+        UI_HP2_sprites.update(player_2.get_health())
+        UI_AP2_sprites.update(player_2.get_bullets())
+        #Regen
+        pygame.draw.rect(screen,RED,pygame.Rect(8,36,150,9),1)
+        pygame.draw.rect(screen,PEACH_1,pygame.Rect(8,46,150,9),1)
+        pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
+        pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
 
-    pygame.draw.rect(screen,RED,pygame.Rect(866,36,150,9),1)
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,150,9),1)
-    pygame.draw.rect(screen,RED,pygame.Rect(866,36,player_2.get_regen_health(),9),0) # 149
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,player_2.get_regen_bullets(),9),0)
-    """
-    except ExplicitException:
+        pygame.draw.rect(screen,RED,pygame.Rect(866,36,150,9),1)
+        pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,150,9),1)
+        pygame.draw.rect(screen,RED,pygame.Rect(866,36,player_2.get_regen_health(),9),0) # 149
+        pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,player_2.get_regen_bullets(),9),0)
+
+    except:
         try:
             UI_HP1_sprites.update(player_1.get_health())
             UI_AP1_sprites.update(player_1.get_bullets())
@@ -873,15 +1136,15 @@ def level_1():
             block_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
             ghost_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
             slime_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
-        except ExplicitException:
+        except:
             try:
                 pass
                 #block_sprites.update(0, 0, 0, 0)
                 #ghost_sprites.update(0, 0, 0, 0)
                 #slime_sprites.update(0, 0, 0, 0)
-            except ExplicitException:
+            except:
                 print("Error")
-    """
+
     bullet_sprites.update() 
     update_leaderboards()
 
@@ -889,14 +1152,51 @@ def level_2():
     screen.blit(l2_BackGround.image, l2_BackGround.rect)
 
 
+# setup
+Start_BackGround = Background(os.path.join(location,'front_screen.bmp'), [0,0])
+l1_BackGround = Background(os.path.join(location,'level_1.bmp'), [0,0])
+l2_BackGround = Background(os.path.join(location,'level_2.bmp'), [0,0])
+#players
+p1_img = pygame.image.load(os.path.join(location,'chick.bmp')).convert()
+p2_img = pygame.image.load(os.path.join(location,'owl.bmp')).convert()
+p1d_img = pygame.image.load(os.path.join(location,'chick_d.bmp')).convert()
+p2d_img = pygame.image.load(os.path.join(location,'owl_d.bmp')).convert()
+#monsters
+m1_img = pygame.image.load(os.path.join(location,'ghost.bmp')).convert()
+m1_1_img = pygame.image.load(os.path.join(location,'ghost_d.bmp')).convert()
+m2_img = pygame.image.load(os.path.join(location,'slimeBlock.bmp')).convert()
+m2_2_img = pygame.image.load(os.path.join(location,'slimeBlockD.bmp')).convert()
+m3_img = pygame.image.load(os.path.join(location,'grassBlock.bmp')).convert()
+m3_3_img = pygame.image.load(os.path.join(location,'grassBlockD.bmp')).convert()
+m4_img = pygame.image.load(os.path.join(location,'fly.bmp')).convert()
+#walls
+wall_img = pygame.image.load(os.path.join(location,'wall_1.bmp')).convert()
+water_img = pygame.image.load(os.path.join(location,'water.bmp')).convert()
+#bullets
+bullet_img1 = pygame.image.load(os.path.join(location,'bullet.bmp')).convert()
+bullet_img2 = pygame.image.load(os.path.join(location,'bullet_1.bmp')).convert()
+#UI
+ammo_img = pygame.image.load(os.path.join(location,'ammo.bmp')).convert()
+hp_img = pygame.image.load(os.path.join(location,'health.bmp')).convert()
+#Sounds
+shoot_sound = pygame.mixer.Sound(os.path.join(sounds,'shoot.wav'))
+next_wave_sound = pygame.mixer.Sound(os.path.join(sounds,'nextwave.wav'))
+dead_sound = pygame.mixer.Sound(os.path.join(sounds,'dead.wav'))
+hurt_sound = pygame.mixer.Sound(os.path.join(sounds,'hurt.wav'))
+reload_sound = pygame.mixer.Sound(os.path.join(sounds,'reload.wav'))
+
+
+pygame.joystick.init()
+
 location = 0 #Start in menu
 p1_runonce = 1
-p2_runconce = 1
+p2_runonce = 1
 map_runonce = 1
 points = 0
-wave_num = 1
-enemy_timer = 0
-
+wave_num = 2
+rounds = 0
+enemy_timer = StopWatch()
+max_time = 30
 def main(running):
     # Process input (events)
     # Update

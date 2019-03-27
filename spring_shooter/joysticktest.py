@@ -35,7 +35,7 @@ while 1:
     trig13 = joystick.get_button(13)
     #sp = joystick.get_hat(0)(0)
     enable = joystick.get_button(1)
-    print(rt)
+    print("Trigger",rt)
     #print(rt1)
     print(lt)
     print(fb)

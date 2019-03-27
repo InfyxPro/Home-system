@@ -119,7 +119,7 @@ def UI_function(H1 = None, A1 = None, H2 = None, A2 = None):
         V = __UI__(x,y,hp_img,i)
         UI_HP1_sprites.add(V)
         x += 20
-
+    
     x = 8
     y = 21
     for i in range(0,A1):
@@ -132,7 +132,7 @@ def UI_function(H1 = None, A1 = None, H2 = None, A2 = None):
         V = __UI__(x,y,hp_img,i)
         UI_HP2_sprites.add(V)
         x -= 20
-
+    
     x = 1000
     y = 21
     for i in range(0,A2):
@@ -238,7 +238,7 @@ class SLIME(pygame.sprite.Sprite):
             self.rect.y -= self.MS * y
         if (self.rect.right > WIDTH) or (self.rect.left < 0):
             self.rect.x -= self.MS * x
-        #sprite detection
+#sprite detection
 
 
 class FLY(pygame.sprite.Sprite):
@@ -255,7 +255,7 @@ class FLY(pygame.sprite.Sprite):
         self.time_new = time.clock()
         self.x_dis = 0
         self.y_dis = 0
-
+    
     def update(self):
         if (pygame.sprite.spritecollideany(self,bullet_sprites)): self.health -= 1
         if (self.health <= 0): self.kill()
@@ -334,19 +334,19 @@ class BLOCK(pygame.sprite.Sprite):
         elif(self.MS): self.MS = self.constMS
         if (dist1 <= dist2): #player one closer
             rads = math.atan2(y1_dis , (x1_dis))
-
+            
             x = round(math.cos(rads) * self.MS)
             y = round(math.sin(rads) * self.MS)
         elif (dist1 > dist2): #plyer two closer
             rads = math.atan2(y2_dis , (x2_dis))
             x = round(math.cos(rads) * self.MS)
             y = round(math.sin(rads) * self.MS)
-        
+    
         self.rect.y += y
         self.rect.x += x
         if (self.rect.bottom >= HEIGHT) or (self.rect.top <= 0):self.rect.y -= y
         if (self.rect.right > WIDTH) or (self.rect.left < 0):self.rect.x -= x
-            #sprite detection
+        #sprite detection
         if (pygame.sprite.spritecollideany(self,wall_sprites)):
             bool_y = 0
             bool_x = 0
@@ -392,7 +392,7 @@ class GHOST(pygame.sprite.Sprite):
         if (pygame.sprite.spritecollideany(self,bullet_sprites)): self.health -= 1
         if (self.health <= 0): self.kill()
         self.time = time.clock()
-
+        
         #Turn invis
         if (self.time_new <= self.time):
             self.rand_timer_1 = (random.randint(90,120) / 10)
@@ -429,16 +429,16 @@ class GHOST(pygame.sprite.Sprite):
             rads = math.atan2(y2_dis , (x2_dis))
             x = round(math.cos(rads) * self.MS)
             y = round(math.sin(rads) * self.MS)
-        
+    
         self.rect.y += y
         self.rect.x += x
-
+        
         #sprite detection
         
         if (self.rect.bottom >= HEIGHT) or (self.rect.top <= 0):
             self.rect.y -= y
-        if (self.rect.right > WIDTH) or (self.rect.left < 0):
-            self.rect.x -= x
+if (self.rect.right > WIDTH) or (self.rect.left < 0):
+    self.rect.x -= x
         
         if (pygame.sprite.spritecollideany(self,wall_sprites) and not self.invis):
             bool_y = 0
@@ -475,7 +475,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-
+    
     def update(self):
         global points
         if (pygame.sprite.spritecollideany(self,wall_sprites)):
@@ -484,11 +484,11 @@ class Bullet(pygame.sprite.Sprite):
             points += 1
             self.kill()
         if (self.rect.bottom >= HEIGHT + 100) or (self.rect.top <= -100):
-                self.kill()
+            self.kill()
         if (self.rect.right > WIDTH + 100) or (self.rect.left < -100):
-                self.kill()
+            self.kill()
         self.rect.x += self.xspeed
-        self.rect.y += self.yspeed
+                self.rect.y += self.yspeed
 
 
 class Player(pygame.sprite.Sprite):
@@ -507,6 +507,7 @@ class Player(pygame.sprite.Sprite):
         self.time = time.clock()
         self.current_time = 0
         self.damage_time = 0
+        self.ammo_accel = 0
         
         self.image_D = player_img_2
         self.image_N = player_img_1
@@ -542,6 +543,7 @@ class Player(pygame.sprite.Sprite):
         return self.regen_h
     
     def update(self, x , y, shoot_x, shoot_y, shoot):
+        print("Here")
         self.time = time.clock()
         #Check if alive
         if (self.health <= 0):
@@ -549,7 +551,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = -10000 #To make the enemys attack current target
             self.rect.x = -10000
         #for regen
-        self.regen_a += self.regen_ammo
+        self.ammo_accel += 5
+        #print(self.ammo_accel)
+        self.regen_a += self.regen_ammo + self.ammo_accel
         self.regen_h += self.regen_health
         if ((self.regen_a >= 149)):
             if ((self.bullets < self.MB)): self.bullets += 1
@@ -593,27 +597,28 @@ class Player(pygame.sprite.Sprite):
                 self.health -= 2
             if(pygame.sprite.spritecollideany(self,slime_sprites)):
                 self.health -= 1
-            
+    
         elif (self.damage_time > self.time):
             self.image = self.image_D
-        else:
-            self.image = self.image_N
+else:
+    self.image = self.image_N
         
         rads = math.atan2(shoot_y , (shoot_x + 0.00001))
         
         pygame.draw.line(screen,RED, (self.rect.x + 17, self.rect.y + 17), (self.rect.x + 17 + (math.cos(rads) * 27), self.rect.y + 17 + (math.sin(rads) * 27)),2) # makes the line for shooting
-
+        
         #shooting
         if (shoot and self.shoot_runonce and self.bullets > 0):
             self.shoot_runonce = 0
             self.bullets -= 1
+            self.ammo_accel = 0
             #shooting bullet
-            __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img,1)
+            __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,1)
             bullet_sprites.add(__bullet__)
         elif (not shoot):
             self.shoot_runonce = 1
-            
-            
+
+
 
 
 
@@ -647,7 +652,7 @@ def buttons(s,msg,x,y,w,h,ic,ac,number_1,action = None):
             action(number_1)
     else:
         pygame.draw.rect(screen, ic,(x,y,w,h))
-
+    
     smallText = pygame.font.Font("freesansbold.ttf",s)
     textSurf, textRect = text_objects(msg, smallText)
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
@@ -772,12 +777,12 @@ def start_menu():
             message_display_1(10, "Speed: 5",WIDTH * .2, HEIGHT * .65, GREEN)
             if (p1_runonce == 1):
                 global player_1
-                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img, 10, 8, 5, 100, 1.4)
+                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img, 7, 8, 5, 2.8, 0.7)
                 player_1_sprites.add(player_1)
                 p1_runonce = 0
-            
-    except:
-        message_display_1(20, "Player one NOT connected",WIDTH * .2, HEIGHT * .5, RED)
+
+except:
+    message_display_1(20, "Player one NOT connected",WIDTH * .2, HEIGHT * .5, RED)
     try:
         joystick_1.init()
         if (joystick_1.get_init) :
@@ -789,37 +794,39 @@ def start_menu():
             message_display_1(10, "Speed: 4",WIDTH * .2, HEIGHT * .35, GREEN)
             if (p2_runconce == 1):
                 global player_2
-                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img, 8, 10, 6, 190, 1)
+                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img, 5, 10, 6, 3.3, 0.5)
                 player_2_sprites.add(player_2)
                 p2_runonce = 0
-    except:
-        message_display_1(20, "Player two NOT connected",WIDTH * .2, HEIGHT * .4, RED)
+except:
+    message_display_1(20, "Player two NOT connected",WIDTH * .2, HEIGHT * .4, RED)
 
 def enemy_creater(*list_1):
     global enemy_timer
     #enemy_timer = time.clock()
-    if(enemy_timer < (time.clock() - random.randint(5,40)/10)):
+    if(enemy_timer < (time.clock() - random.randint(30,90)/10)):
         enemy_timer = time.clock()
-        x = random.randint(1,3)
-        if (x == 1):          make_ghost(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
-
-        elif (x == 2):        make_slime(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
-
-        elif (x == 3):        make_block(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 10))
-
+        x = random.randint(1,4)
+        if (x == 1):          make_ghost(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
+        
+        elif (x == 2):        make_slime(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
+        
+        elif (x == 3):        make_block(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
+        
+        elif (x == 4):        make_fly(random.randint(100,WIDTH),random.randint(100,HEIGHT),round(enemy_timer / 50))
+    
     """
-    for i in range(0,15):
+        for i in range(0,15):
         if ((list_1[0][i][2] < enemy_timer) and list_1[0][i][4]):
-            list_1[0][i][4] = 0
-            if (list_1[0][i][3] == 0):
-                make_fly(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 1):
-                make_block(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 2):
-                make_slime(list_1[0][i][0],list_1[0][i][1],0)
-            elif (list_1[0][i][3] == 3):
-                make_ghost(list_1[0][i][0],list_1[0][i][1],0)
-    """
+        list_1[0][i][4] = 0
+        if (list_1[0][i][3] == 0):
+        make_fly(list_1[0][i][0],list_1[0][i][1],0)
+        elif (list_1[0][i][3] == 1):
+        make_block(list_1[0][i][0],list_1[0][i][1],0)
+        elif (list_1[0][i][3] == 2):
+        make_slime(list_1[0][i][0],list_1[0][i][1],0)
+        elif (list_1[0][i][3] == 3):
+        make_ghost(list_1[0][i][0],list_1[0][i][1],0)
+        """
 
 def level_1():
     global map_runonce, player_2, player_1, joystick_0, joystick_1, waves
@@ -830,20 +837,22 @@ def level_1():
     screen.blit(l1_BackGround.image, l1_BackGround.rect)
     fire = 0
     try:
-        if (joystick_0.get_axis(5) > -0.5):
+        if (joystick_0.get_axis(5) > 0):
             fire = 1
         player_1_sprites.update(joystick_0.get_axis(0),joystick_0.get_axis(1),joystick_0.get_axis(2),joystick_0.get_axis(3),fire)
+    
     except:
         print("Player 1 not connected")
+    
     try:
         fire = 0
-        if (joystick_1.get_axis(5) > -0.5):
+        if (joystick_1.get_axis(5) > 0):
             fire = 1
         player_2_sprites.update(joystick_1.get_axis(0),joystick_1.get_axis(1),joystick_1.get_axis(2),joystick_1.get_axis(3),fire)
     except:
         print("Player 2 Not connected")
     fly_sprites.update()
-    
+
     block_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
     ghost_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
     slime_sprites.update(player_1.get_x(), player_1.get_y(), player_2.get_x(), player_2.get_y())
@@ -857,33 +866,33 @@ def level_1():
     pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
     pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
 
-    pygame.draw.rect(screen,RED,pygame.Rect(866,36,150,9),1)
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,150,9),1)
-    pygame.draw.rect(screen,RED,pygame.Rect(866,36,player_2.get_regen_health(),9),0) # 149
-    pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,player_2.get_regen_bullets(),9),0)
-    """
+pygame.draw.rect(screen,RED,pygame.Rect(866,36,150,9),1)
+pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,150,9),1)
+pygame.draw.rect(screen,RED,pygame.Rect(866,36,player_2.get_regen_health(),9),0) # 149
+pygame.draw.rect(screen,PEACH_1,pygame.Rect(866,46,player_2.get_regen_bullets(),9),0)
+"""
     except ExplicitException:
-        try:
-            UI_HP1_sprites.update(player_1.get_health())
-            UI_AP1_sprites.update(player_1.get_bullets())
-            pygame.draw.rect(screen,RED,pygame.Rect(8,36,150,9),1)
-            pygame.draw.rect(screen,PEACH_1,pygame.Rect(8,46,150,9),1)
-            pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
-            pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
-            block_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
-            ghost_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
-            slime_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
-        except ExplicitException:
-            try:
-                pass
-                #block_sprites.update(0, 0, 0, 0)
-                #ghost_sprites.update(0, 0, 0, 0)
-                #slime_sprites.update(0, 0, 0, 0)
-            except ExplicitException:
-                print("Error")
+    try:
+    UI_HP1_sprites.update(player_1.get_health())
+    UI_AP1_sprites.update(player_1.get_bullets())
+    pygame.draw.rect(screen,RED,pygame.Rect(8,36,150,9),1)
+    pygame.draw.rect(screen,PEACH_1,pygame.Rect(8,46,150,9),1)
+    pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
+    pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
+    block_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
+    ghost_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
+    slime_sprites.update(player_1.get_x(), player_1.get_y(), -5000, -5000)
+    except ExplicitException:
+    try:
+    pass
+    #block_sprites.update(0, 0, 0, 0)
+    #ghost_sprites.update(0, 0, 0, 0)
+    #slime_sprites.update(0, 0, 0, 0)
+    except ExplicitException:
+    print("Error")
     """
-    bullet_sprites.update() 
-    update_leaderboards()
+        bullet_sprites.update()
+        update_leaderboards()
 
 def level_2():
     screen.blit(l2_BackGround.image, l2_BackGround.rect)

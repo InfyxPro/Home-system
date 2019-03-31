@@ -461,6 +461,102 @@ class __UI__(pygame.sprite.Sprite):
             self.rect.y = self.y
             self.rect.x = self.x
 
+class GLITCH_BOSS(pygame.sprite.Sprite):
+    def __init__(self ,health, glitch_img, blink_img, img1, img2, map_img):
+        global points
+        pygame.sprite.Sprite.__init__(self)
+        self.x = 500
+        self.y = 500
+        self.glitch_img = glitch_img
+        self.image = self.glitch_img
+        self.blink_img = blink_img
+        self.img1 = img1
+        self.img2 = img2
+        self.map_img = map_img
+
+        self.points = points
+        
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.x, self.y)
+        self.MH = health
+        self.health = health
+        self.half_health = health * 0.5
+        self.MS = 2
+        self.time = StopWatch()
+        self.move_once = 1
+        background_horror_sound.play(-1)
+        self.spawn_once = 1
+        self.quick_shoot_once = 1
+        self.bomb_once = 1
+        
+        self.enter_time = StopWatch()
+        
+        self.blink_time = StopWatch()
+        self.blink_value = (random.randint(10,25)/10)
+        self.blink_amount = 0
+        
+        self.glitch_time = StopWatch()
+        self.glitch_value = random.randint(1,7)
+        self.glitch_amount = 0
+        self.glitch_type = 0
+    
+
+    def update(self,x1 = None,y1 = None,x2 = None,y2 = None, x3 = None, y3 = None, x4 = None, y4 = None):
+        global points
+        points = 666
+        #For health
+        if (pygame.sprite.spritecollideany(self,bullet_sprites)):
+            self.health -= 1
+        if (pygame.sprite.spritecollideany(self,bulletx2_sprites)):
+            self.health -= 2
+        if (self.health <= 0):
+            background_horror_sound.stop()
+            glitching_out_sound.play()
+            points = self.points
+            self.kill()
+        #Teleports boss when 5 damage is done
+        if (self.health % 5 == 0 and self.move_once):
+            take_control_player_sound.set_volume(.3)
+            take_control_player_sound.play(0,10000)
+            self.rect.x = random.randint(0,WIDTH)
+            self.rect.y = random.randint(10,HEIGHT)
+            self.move_once = 0
+            for i in range(0,7):
+                rad = (i-1) * 0.7854
+                bullet = EBULLETS(self.rect.x + 45,self.rect.y + 45, rad,m4_img,1)
+                enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
+        elif(not self.health % 5 == 0):
+            self.move_once = 1
+        
+        #For blinking
+        self.image = self.glitch_img
+        if (self.blink_time.elapsed(1) >= self.blink_value):
+            self.blink_time = StopWatch()
+            self.blink_value = random.randint(20,35) / 10
+            self.blink_amount = random.randint(1,5) / 10
+        if(self.blink_time.elapsed(1) <= self.blink_amount):
+            self.image = self.blink_img
+            self.image.set_colorkey(BLACK)
+        #For glitching
+        if (self.glitch_time.elapsed(1) >= self.glitch_value):
+            self.glitch_time = StopWatch()
+            self.glitch_value = random.randint(1,7)
+            self.glitch_amount = random.randint(1,3) / 10
+            self.glitch_type = random.randint(0,2)
+        if(self.glitch_time.elapsed(1) <= self.glitch_amount):
+            if (self.glitch_type == 0):
+                self.image = self.img1
+                self.image.set_colorkey(BLACK)
+            elif(self.glitch_type == 1):
+                self.image = self.img2
+                self.image.set_colorkey(BLACK)
+        
+        
+        #Display health
+        pygame.draw.rect(screen,RED,pygame.Rect(self.rect.x,self.rect.y- 10,map(self.health,0,self.MH,0,40),10),0)
+
 class BOSS(pygame.sprite.Sprite):
     def __init__(self ,x ,y ,player_img_1, health):
         pygame.sprite.Sprite.__init__(self)
@@ -483,6 +579,7 @@ class BOSS(pygame.sprite.Sprite):
         self.bomb_time = StopWatch()
         self.time_1 = time.clock()
         self.time_new = time.clock()
+    
         
     def update(self,x1 = None,y1 = None,x2 = None,y2 = None, x3 = None, y3 = None, x4 = None, y4 = None):
         #Make sound when hurt ever 20 damage
@@ -625,7 +722,7 @@ class BOMB(pygame.sprite.Sprite):
             big_bomb_sound.play(0,100)
             # create bullets in all directions
             for i in range(0,7):
-                rad = i * 0.7854
+                rad = (i-1) * 0.7854
                 bullet = EBULLETS(self.rect.x + 45,self.rect.y + 45, rad,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
                 enemy_sprites.add(bullet)
@@ -1011,8 +1108,8 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
         if (pygame.sprite.spritecollideany(self,enemy_sprites)):
             points += 1
-            self.kill()
             dead_sound.play()
+            self.kill()
         if (self.rect.bottom >= HEIGHT + 100) or (self.rect.top <= -100):
                 self.kill()
         if (self.rect.right > WIDTH + 100) or (self.rect.left < -100):
@@ -1020,12 +1117,43 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += self.xspeed
         self.rect.y += self.yspeed
 
+class SWORD(pygame.sprite.Sprite):
+    def __init__(self,x,y, angle, player_img_1,xspeed,yspeed):
+        pygame.sprite.Sprite.__init__(self)
+        self.angle = angle * -57.3 #convert to degrees
+        self.xspeed = round(math.cos(angle) * 10) + xspeed
+        self.yspeed = round(math.sin(angle) * 10) + yspeed
+        self.x = x
+        self.y = y
+        self.image_1 = player_img_1
+        self.image = pygame.transform.rotate(self.image_1,self.angle)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.angle_speed = StopWatch()
+        self.hit = 0
+    
+    def update(self):
+        global points
+        self.rect.x += self.xspeed
+        self.rect.y += self.yspeed
+        self.angle += 25
+        self.image = pygame.transform.rotate(self.image_1,self.angle)
+        self.image.set_colorkey(BLACK)
+        if (self.angle_speed.elapsed() >= 0.4): self.kill()
+        if (pygame.sprite.spritecollideany(self,enemy_sprites)):
+            points += 1
+            hit_sword_sound.play()
+            if(self.hit):
+                self.kill()
+            self.hit+=1
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,x,y,player_img_1,player_img_2,player_img_3,max_health,max_bullets,max_speed, regen_ammo, regen_health, ability):
         pygame.sprite.Sprite.__init__(self)
         self.ability = ability
         self.MB = max_bullets
+        self.constMB = self.MB
         self.MH = max_health
         self.MS = max_speed
         self.constMS = max_speed
@@ -1034,6 +1162,7 @@ class Player(pygame.sprite.Sprite):
         self.bullets = max_bullets
         self.shoot_runonce = 1
         self.regen_ammo = regen_ammo
+        self.const_regen_ammo = self.regen_ammo
         self.regen_health = regen_health
         self.time = time.clock()
         self.current_time = 0
@@ -1053,12 +1182,18 @@ class Player(pygame.sprite.Sprite):
         self.dead = 0
         self.dash_timer = StopWatch()
         self.ability_timer = StopWatch()
+        self.dash_time = 7
+    
     
     def get_x(self):
-        return self.rect.x
+        value = self.rect.x
+        if (self.dash_time == 0.5): value = -5000 #for mele
+        return value
     
     def get_y(self):
-        return self.rect.y
+        value = self.rect.y
+        if (self.dash_time == 0.5): value = -5000 #for mele
+        return value
     
     def get_health(self):
         return self.health
@@ -1110,7 +1245,7 @@ class Player(pygame.sprite.Sprite):
         if (pygame.sprite.spritecollideany(self,water_sprites)): self.MS = self.slowspeed
         else: self.MS = self.constMS
         
-        if (self.dash_timer.elapsed() > 7): #Dash and button pressed
+        if (self.dash_timer.elapsed() > self.dash_time): #Dash and button pressed
             self.image = self.image_A
             if(dash):
                 self.dash_timer.start()
@@ -1141,7 +1276,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += (y)
             if (bool_x):self.rect.x -= (x)
             if (bool_y):self.rect.y -= (y)
-        
         #For enemy sprites
         if(pygame.sprite.spritecollideany(self,enemy_sprites) and (self.damage_time < self.time)):
             self.image = self.image_D
@@ -1164,13 +1298,13 @@ class Player(pygame.sprite.Sprite):
 
         elif (self.damage_time > self.time):
             self.image = self.image_D
-        
         rads = math.atan2(shoot_y , (shoot_x + 0.00001))
-        
         pygame.draw.line(screen,RED, (self.rect.x + 17, self.rect.y + 17), (self.rect.x + 17 + (math.cos(rads) * 27), self.rect.y + 17 + (math.sin(rads) * 27)),2) # makes the line for shooting
         #Using ability
+        global rounds
         ability_extra_shot = 0
-        if (self.ability == 1): #Fire power
+        if (self.ability == 1): #shooter
+            self.MB = self.constMB + rounds
             if (self.ability_timer.elapsed() > 30): #ability
                 pygame.draw.rect(screen,BLACK,pygame.Rect(self.rect.x,self.rect.y-3,34,3),0)
                 if(ability):
@@ -1180,24 +1314,52 @@ class Player(pygame.sprite.Sprite):
             else:
                 if (self.ability_timer.elapsed() <= 4):
                     ability_extra_shot = 1
-        
-        #shooting
-        if (shoot and self.shoot_runonce and self.bullets > 0):
-            self.shoot_runonce = 0
-            self.bullets -= 1
-            self.sound_1 = 1
-            shoot_sound.play()
-            #shooting bullet
-            if (ability_extra_shot):
-                __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,4)
-                bulletx2_sprites.add(__bullet__)
-            
-            else:
-                __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,1)
-                bullet_sprites.add(__bullet__)
+            #shooting
+            if (shoot and self.shoot_runonce and self.bullets > 0):
+                self.shoot_runonce = 0
+                self.bullets -= 1
+                self.sound_1 = 1
+                shoot_sound.play()
+                #shooting bullet
+                if (ability_extra_shot):
+                    __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,4)
+                    bulletx2_sprites.add(__bullet__)
+                
+                else:
+                    __bullet__ = Bullet(self.rect.x + 17,self.rect.y + 17,rads,bullet_img1,1)
+                    bullet_sprites.add(__bullet__)
+                self.ammo_accel = 0
+            elif (not shoot):
+                self.shoot_runonce = 1
+        elif (self.ability == 2): #sword
             self.ammo_accel = 0
-        elif (not shoot):
-            self.shoot_runonce = 1
+            self.regen_a = self.const_regen_ammo + rounds * 0.25
+            self.dash_time = 4 # 5 seconds per dash
+            if (self.ability_timer.elapsed() > 50): #ability
+                pygame.draw.rect(screen,BLUE,pygame.Rect(self.rect.x,self.rect.y-3,34,3),0)
+                if(ability):
+                    self.bullets = self.MB
+                    self.bullets += 12
+                    self.ability_timer.start()
+                    taunt_sound.play()
+            else:
+                if (self.ability_timer.elapsed() <= 5):
+                    self.image = self.image_D
+                    self.dash_time = 0.5
+                    self.health = self.MH
+
+           
+            if (shoot and self.shoot_runonce and self.bullets > 0):
+                self.shoot_runonce = 0
+                self.bullets -= 1
+                self.sound_1 = 1
+                swing_sword_sound.play()
+                #shooting bullet
+                __bullet__ = SWORD(self.rect.x + 17,self.rect.y + 17,rads,yellow_sword_img,x,y)
+                bullet_sprites.add(__bullet__)
+
+            elif ((not shoot)):
+                self.shoot_runonce = 1
 
 
 
@@ -1237,7 +1399,11 @@ def buttons(s,msg,x,y,w,h,ic,ac,number_1,action = None):
     textRect.center = ( (x+(w/2)), (y+(h/2)) )
     screen.blit(textSurf, textRect)
 
-
+def make_glitch(round):
+    health = 50 + (round*20)
+    dum = GLITCH_BOSS(health,glitch_ghost_img,glitch_ghost_blink_img,glitch_ghost1_img,glitch_ghost2_img,glitch_map_img)
+    trump_sprites.add(dum)
+    enemy_sprites.add(dum)
 
 def make_ghost(x,y,round):
     health = 3 + round
@@ -1332,6 +1498,7 @@ def map(x, in_min, in_max, out_min, out_max):
 def create_map():
     global MAP, wall_img, player_2, player_1, points, enemy_timer, player_3, player_4
     enemy_timer.start()
+    #make_glitch(0)
     y = 0
     points = 0
     try:
@@ -1343,11 +1510,13 @@ def create_map():
             try:
                 UI_function(player_1.get_max_health(), player_1.get_max_bullets(),player_2.get_max_health(), player_2.get_max_bullets(), 0, 0, 0, 0)
             except:
-                UI_function(player_1.get_max_health(), player_1.get_max_bullets(),0, 0, 0, 0, 0, 0)
                 try:
-                    UI_function(0, 0, 0, 0, 0, 0, 0, 0)
+                    UI_function(player_1.get_max_health(), player_1.get_max_bullets(),0, 0, 0, 0, 0, 0)
                 except:
-                    print("UI Error")
+                    try:
+                        UI_function(0, 0, 0, 0, 0, 0, 0, 0)
+                    except:
+                        print("UI Error")
     #Both rect are for regen HP and Ammo
     for column in MAP:
         x = -8
@@ -1403,7 +1572,8 @@ def start_menu():
             if (p1_runonce == 1):# (self,x,y,player_img_1,player_img_2,max_health,max_bullets,max_speed, regen_ammo, regen_health,ability):
                 global player_1
                 controller_count+=1
-                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img,p1a_img, 7, 5, 5, 0.6, 0.3,1)
+                player_1 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img,p1a_img, 6, 6, 4.5, 0.7, 0.2,1)
+    
                 player_1_sprites.add(player_1)
                 p1_runonce = 0
             
@@ -1423,7 +1593,7 @@ def start_menu():
             if (p2_runonce == 1):
                 global player_2
                 controller_count+=1
-                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img,p2a_img, 5, 6, 6, .7, 0.2,1)
+                player_2 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img,p2a_img, 4, 4, 5.5, 3, 0.35,2)
                 player_2_sprites.add(player_2)
                 p2_runonce = 0
     except:
@@ -1442,7 +1612,7 @@ def start_menu():
             if (p3_runonce == 1):
                 global player_3
                 controller_count+=1
-                player_3 = Player(WIDTH * .73, HEIGHT * .4, p3_img, p3d_img,p3a_img, 5, 6, 6, .7, 0.2,1)
+                player_3 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img,p1a_img, 6, 6, 6, 0.7, 0.2,1)
                 player_3_sprites.add(player_3)
                 p3_runonce = 0
     except:
@@ -1459,9 +1629,10 @@ def start_menu():
             message_display_1(12, "Bullets: 5",WIDTH * .6, HEIGHT * .625, GREEN)
             message_display_1(12, "Speed: 4",WIDTH * .6, HEIGHT * .65, GREEN)
             if (p4_runonce == 1):
-                global player_4
+                global player_4, HARD_MODE
+                HARD_MODE = 1
                 controller_count+=1
-                player_4 = Player(WIDTH * .73, HEIGHT * .5, p4_img, p4d_img,p4a_img, 5, 6, 6, .7, 0.2,1)
+                player_4 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img,p2a_img, 4, 4, 6, 3, 0.35,2)
                 player_4_sprites.add(player_4)
                 p4_runonce = 0
     except:
@@ -1483,26 +1654,26 @@ def random_enemy_creater():
 
 def boss_enemy_creater(time, frequency,do_once):
     if((round(time) % frequency) == 0):
-        global rounds
+        global rounds, HARD_MODE
         trump_call_enemys_sound.play()
         x = random.randint(1,2)
         if (x == 1 and do_once):
-            make_ghost(random.randint(0,WIDTH),0,rounds -1)
-            make_ghost(0,random.randint(0,HEIGHT),rounds - 1)
-            make_ghost(WIDTH,random.randint(0,HEIGHT),rounds -1)
-            make_ghost(random.randint(0,WIDTH),HEIGHT,rounds - 1)
+            make_ghost(random.randint(0,WIDTH),0,rounds -1 + HARD_MODE)
+            make_ghost(0,random.randint(0,HEIGHT),rounds - 1 + HARD_MODE)
+            make_ghost(WIDTH,random.randint(0,HEIGHT),rounds -1 + HARD_MODE)
+            make_ghost(random.randint(0,WIDTH),HEIGHT,rounds - 1 + HARD_MODE)
         elif (x == 2 and do_once):
-            make_slime(random.randint(0,WIDTH),0,rounds - 1)
-            make_slime(0,random.randint(0,HEIGHT),rounds - 1)
-            make_slime(WIDTH,random.randint(0,HEIGHT),rounds - 1)
-            make_slime(random.randint(0,WIDTH),HEIGHT,rounds - 1)
+            make_slime(random.randint(0,WIDTH),0,rounds - 1 + HARD_MODE)
+            make_slime(0,random.randint(0,HEIGHT),rounds - 1 + HARD_MODE)
+            make_slime(WIDTH,random.randint(0,HEIGHT),rounds - 1 + HARD_MODE)
+            make_slime(random.randint(0,WIDTH),HEIGHT,rounds - 1 + HARD_MODE)
         return 0
     else:
         return 1
 
 
 def enemy_creater(list_1):
-    global enemy_timer, wave_num, max_time, rounds, player_1, player_2
+    global enemy_timer, wave_num, max_time, rounds, player_1, player_2, HARD_MODE
     if (not(len(enemy_sprites)) and (enemy_timer.elapsed() > list_1[wave_num][len(list_1[wave_num]) - 1][2])):
         wave_num += 1
         if (wave_num == 10):
@@ -1527,15 +1698,15 @@ def enemy_creater(list_1):
         if (((list_1[wave_num][i][2]) < enemy_timer.elapsed() + 5) and list_1[wave_num][i][4]):
             list_1[wave_num][i][4] = 0
             if (list_1[wave_num][i][3] == 0):
-                make_fly(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+                make_fly(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 1):
-                make_block(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+                make_block(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 2):
-                make_slime(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+                make_slime(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 3):
-                make_ghost(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+                make_ghost(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 4):
-                make_trump(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds)
+                make_trump(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds+ HARD_MODE)
 
 
 def level_1():
@@ -1546,9 +1717,23 @@ def level_1():
         create_map()
     enemy_creater(waves)
     screen.blit(l1_BackGround.image, l1_BackGround.rect)
+    """ For raspbrry pi
+try:
+    if (joystick_0.get_axis(0) == -1 and joystick_0.get_axis(1) == -1 and joystick_0.get_axis(2) == -1 and joystick_0.get_axis(5) == -1):check_controller() #check controller  #
+    dash = 0
+        fire = 0
+        special = joystick_0.get_button(1)
+        if (joystick_0.get_axis(4) > 0):
+            fire = 1
+    if (joystick_0.get_axis(3) > 0):
+        dash = 1
+        player_1_sprites.update(joystick_0.get_axis(0),joystick_0.get_axis(1),joystick_0.get_axis(2),joystick_0.get_axis(5),fire,dash,special)
 
+except:
+    print("Player 1 not connected")
+    """
     try:
-        if (joystick_0.get_axis(0) == -1 and joystick_0.get_axis(1) == -1 and joystick_0.get_axis(2) == -1 and joystick_0.get_axis(3) == -1):check_controller() #check controller
+        if (joystick_0.get_axis(0) == -1 and joystick_0.get_axis(1) == -1 and joystick_0.get_axis(2) == -1 and joystick_0.get_axis(3) == -1):check_controller() #check controller  #
         dash = 0
         fire = 0
         special = joystick_0.get_button(1)
@@ -1663,8 +1848,6 @@ def level_1():
             pygame.draw.rect(screen,PEACH_1,pygame.Rect(208,46,150,9),1)
             pygame.draw.rect(screen,RED,pygame.Rect(208,36,player_2.get_regen_health(),9),0) # 149
             pygame.draw.rect(screen,PEACH_1,pygame.Rect(208,46,player_2.get_regen_bullets(),9),0)
-            print("Working")
-
         except:
             try:
                 trump_sprites.update(player_1.get_x(),player_1.get_y(),player_2.get_x(),player_2.get_y(),-10000,-10000,-10000,-10000)
@@ -1687,6 +1870,7 @@ def level_1():
                 pygame.draw.rect(screen,PEACH_1,pygame.Rect(208,46,player_2.get_regen_bullets(),9),0)
             except:
                 try:
+                    print("here")
                     trump_sprites.update(player_1.get_x(),player_1.get_y(),-10000,-10000,-10000,-10000,-10000,-10000)
                     block_sprites.update(player_1.get_x(), player_1.get_y(), -10000, -10000,-10000,-10000,-10000,-10000)
                     ghost_sprites.update(player_1.get_x(), player_1.get_y(), -10000, -10000,-10000,-10000,-10000,-10000)
@@ -1694,13 +1878,15 @@ def level_1():
                     UI_HP1_sprites.update(player_1.get_health())
                     UI_AP1_sprites.update(player_1.get_bullets())
                     #Regen
+                    print(player_1.get_regen_health())
                     pygame.draw.rect(screen,RED,pygame.Rect(8,36,150,9),1)
                     pygame.draw.rect(screen,PEACH_1,pygame.Rect(8,46,150,9),1)
                     pygame.draw.rect(screen,RED,pygame.Rect(9,36,player_1.get_regen_health(),9),0) # 149
                     pygame.draw.rect(screen,PEACH_1,pygame.Rect(9,46,player_1.get_regen_bullets(),9),0)
                 except:
                     print("No players playing")
-                        
+                        #trump_sprites.update(player_1.get_x(),player_1.get_y(),-10000,-10000,-10000,-10000,-10000,-10000)
+
     enemy_bomb_sprites.update()
     bullet_sprites.update()
     bulletx2_sprites.update()
@@ -1741,6 +1927,8 @@ trump_boss_img = pygame.image.load(os.path.join(location,'trump_face.bmp')).conv
 #walls
 wall_img = pygame.image.load(os.path.join(location,'wall_1.bmp')).convert()
 water_img = pygame.image.load(os.path.join(location,'water.bmp')).convert()
+#weapons
+yellow_sword_img = pygame.image.load(os.path.join(location,'yellow_sword.bmp')).convert()
 #bullets
 bullet_img1 = pygame.image.load(os.path.join(location,'bullet.bmp')).convert()
 bullet_img2 = pygame.image.load(os.path.join(location,'bullet_1.bmp')).convert()
@@ -1750,6 +1938,9 @@ bomb_img = pygame.image.load(os.path.join(location,'trump_bomb.bmp')).convert()
 ammo_img = pygame.image.load(os.path.join(location,'ammo.bmp')).convert()
 hp_img = pygame.image.load(os.path.join(location,'health.bmp')).convert()
 #Sounds
+hit_sword_sound = pygame.mixer.Sound(os.path.join(sounds,'hit_sword.wav'))
+swing_sword_sound = pygame.mixer.Sound(os.path.join(sounds,'swing_sword.wav'))
+taunt_sound = pygame.mixer.Sound(os.path.join(sounds,'taunt_enemy.wav'))
 shoot_sound = pygame.mixer.Sound(os.path.join(sounds,'shoot.wav'))
 next_wave_sound = pygame.mixer.Sound(os.path.join(sounds,'nextwave.wav'))
 dead_sound = pygame.mixer.Sound(os.path.join(sounds,'dead.wav'))
@@ -1768,6 +1959,19 @@ trump_hurt3_sound = pygame.mixer.Sound(os.path.join(sounds,'im_enjoying_it.wav')
 trump_call_enemys_sound = pygame.mixer.Sound(os.path.join(sounds,'terrorists_coming_from_the_middle_east.wav'))
 trump_shoot_bomb_sound = pygame.mixer.Sound(os.path.join(sounds,'we_have_to_unleash_it.wav'))
 trump_shoot_bullets_sound = pygame.mixer.Sound(os.path.join(sounds,"audio_hero_ExplosionSmall_DIGIJ02_24_351.wav"))
+#Boss ghost img
+glitch_ghost_img = pygame.image.load(os.path.join(location,'glitch_ghost.bmp')).convert()
+glitch_ghost_blink_img = pygame.image.load(os.path.join(location,'glitch_ghost_blink.bmp')).convert()
+glitch_ghost1_img = pygame.image.load(os.path.join(location,'glitch_ghost_colored.bmp')).convert()
+glitch_ghost2_img = pygame.image.load(os.path.join(location,'glitch_ghost_side.bmp')).convert()
+glitch_map_img = pygame.image.load(os.path.join(location,'glitch_level_1.bmp')).convert()
+
+#Boss ghost sounds
+background_horror_sound = pygame.mixer.Sound(os.path.join(sounds,'background_horror.wav'))
+take_control_player_sound = pygame.mixer.Sound(os.path.join(sounds,'take_control_player10s.wav'))
+glitching_out_sound = pygame.mixer.Sound(os.path.join(sounds,'glitchingout.wav'))
+change_map_sound = pygame.mixer.Sound(os.path.join(sounds,'changemap5.9s.wav'))
+tele_behind_sound = pygame.mixer.Sound(os.path.join(sounds,'tele_behind.wav'))
 
 location = 0 #Start in menu
 p1_runonce = 1
@@ -1778,6 +1982,7 @@ map_runonce = 1
 points = 0
 wave_num = 1
 rounds = 0
+HARD_MODE = 0
 enemy_timer = StopWatch()
 max_time = 30
 controller_count = 0

@@ -505,6 +505,7 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
         self.minds_timer = StopWatch()
     
         #For hard mode events
+        self.reset_event = 0
         self.event_complete = 0
         self.event_type = 0
         self.event_timer = StopWatch()
@@ -515,8 +516,8 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
         global points, ONE_SCREEN, rounds, disable_map
         hard_mode = (self.health <= self.half_health) # if half hp, start hard mode
         super_hard_mode = (self.health <= self.third_health) # if half hp, start hard mode
-        hard_mode = 1
-        super_hard_mode = 1
+        #hard_mode = 1
+        #super_hard_mode = 1
         
         #To disable map features
         disable_map = 0
@@ -532,9 +533,13 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
             background_horror_sound.stop()
             glitching_out_sound.play()
             points = self.points
+            disable_map = 0
+            ONE_SCREEN = 1
+            enemy_sprites.empty()
             self.kill()
         #Teleports boss when 5 damage is done
-        if (self.health % 5 == 0 and self.move_once):
+        if ((self.health % 5 == 0 and self.move_once) or self.reset_event):
+            self.reset_event = 0
             try:
                 self.image_value = random.randint(0,(self.health - self.half_health)*10) / 10
             except:pass
@@ -543,7 +548,7 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
             self.make_mobs = 0
             take_control_player_sound.set_volume(.1)
             take_control_player_sound.play(0,10000)
-            i = random.randint(0,8) # teleport in different locations
+            i = random.randint(0,7) # teleport in different locations
             if(i == 0):
                 self.rect.x = WIDTH * 0.15
                 self.rect.y = HEIGHT * 0.85
@@ -570,13 +575,13 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
                 self.rect.y = HEIGHT * 0.65
             
             self.move_once = 0
-            for i in range(0,7):
-                rad = (i-1) * 0.7854
+            for i in range(0,4):
+                rad = (i) * 1.57
                 bullet = EBULLETS(self.rect.x + 45,self.rect.y + 45, rad,m4_img,1)
                 enemy_bullet_sprites.add(bullet)
                 enemy_sprites.add(bullet)
             i = random.randint(0,9)
-            if super_hard_mode or (i == 0 or i == 1 or i == 2 or i == 3 or i == 4): # 50 percent chance to happen
+            if super_hard_mode and (i == 0 or i == 1 or i == 2 or i == 3 or i == 4): # 50 percent chance to happen
                 event = random.randint(1,1)
                 self.event_type = event
                 # Next if statments are one time uses for each event
@@ -584,11 +589,12 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
                     make_glitch_mini(random.randint(200,int(WIDTH * 0.75)),random.randint(200,int(HEIGHT * 0.75)),rounds)
             else:
                 i = random.randint(0,9)
-                if(i == 1 or i == 2 or i == 3 or i == 7 or i == 8 or i == 9): # shooting very 3 seconds
+                if(i == 0 or i == 1 or i == 2 or i == 3): # shooting very 3 seconds
                     self.shoot_abil = 1
-                elif(i == 1 or i == 2 or i == 4 or i == 5 or i == 0): # make mobs
+                elif(i == 4 or i == 5 or i == 6): # make mobs
                     self.make_mobs = 1
-                elif(i == 1 or i == 3 or i == 4 or i == 6): #make minds
+                    self.make_mobs_once = 1
+                elif(i == 7 or i == 8 or i == 9): #make minds
                     take_control_player_sound.play()
                     self.make_minds = 1
         elif(not self.health % 5 == 0):
@@ -648,11 +654,42 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
         rads_2 = math.atan2(y2_dis , (x2_dis))
         rads_1 = math.atan2(y1_dis , (x1_dis))
         self.shoot_once = 0
-        if(self.shoot_timer.elapsed(1) >= 3 and self.shoot_abil):#shoot every 3 seconds
+        if hard_mode:
+            if(self.shoot_timer.elapsed(1) >= 4):#shoot every 3 seconds
+                self.shoot_timer.start()
+                hit_sword_sound.play()
+                self.shoot_once = 1
+            if (1):
+                if(not x1 == -10000):
+                    pygame.draw.line(screen,BLUE,(self.rect.center[0], self.rect.center[1]), (x1 + 17, y1 + 17),1)
+                    if self.shoot_once:
+                        __bullet__ = EBULLETS(self.rect.center[0],self.rect.center[1],rads_1,p1_img,1)
+                        enemy_bullet_sprites.add(__bullet__)
+                        enemy_sprites.add(__bullet__)
+                if(not x2 == -10000):
+                    pygame.draw.line(screen,BLUE,(self.rect.center[0], self.rect.center[1]), (x2 + 17, y2 + 17),1)
+                    if self.shoot_once:
+                        __bullet__ = EBULLETS(self.rect.center[0],self.rect.center[1],rads_2,p2_img,1)
+                        enemy_bullet_sprites.add(__bullet__)
+                        enemy_sprites.add(__bullet__)
+                if(not x3 == -10000):
+                    pygame.draw.line(screen,BLUE,(self.rect.center[0], self.rect.center[1]), (x3 + 17, y3 + 17),1)
+                    if self.shoot_once:
+                        __bullet__ = EBULLETS(self.rect.center[0],self.rect.center[1],rads_3,p3_img,1)
+                        enemy_bullet_sprites.add(__bullet__)
+                        enemy_sprites.add(__bullet__)
+                if(not x4 == -10000):
+                    pygame.draw.line(screen,BLUE,(self.rect.center[0], self.rect.center[1]), (x4 + 17, y4 + 17),1)
+                    if self.shoot_once:
+                        __bullet__ = EBULLETS(self.rect.center[0],self.rect.center[1],rads_3,p3_img,1)
+                        enemy_bullet_sprites.add(__bullet__)
+                        enemy_sprites.add(__bullet__)
+
+        if(self.shoot_timer.elapsed(1) >= 4 and self.shoot_abil):#shoot every 3 seconds
             self.shoot_timer.start()
             hit_sword_sound.play()
             self.shoot_once = 1
-        if (self.shoot_abil or hard_mode):
+        if (self.shoot_abil):
             if(not x1 == -10000):
                 pygame.draw.line(screen,BLUE,(self.rect.center[0], self.rect.center[1]), (x1 + 17, y1 + 17),1)
                 if self.shoot_once:
@@ -697,26 +734,26 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
                     y = ydis + y1 + 17
                     make_slime(x, y,rounds + 7)
                 if (not x2 == -10000):
-                    xdis = math.cos(rads_1) * 60 # speed of bullet
-                    ydis = math.sin(rads_1) * 60
-                    x = xdis + x1 + 17
-                    y = ydis + y1 + 17
+                    xdis = math.cos(rads_2) * 60 # speed of bullet
+                    ydis = math.sin(rads_2) * 60
+                    x = xdis + x2 + 17
+                    y = ydis + y2 + 17
                     make_slime(x, y,rounds + 7)
                 if (not x3 == -10000):
-                    xdis = math.cos(rads_1) * 60 # speed of bullet
-                    ydis = math.sin(rads_1) * 60
-                    x = xdis + x1 + 17
-                    y = ydis + y1 + 17
+                    xdis = math.cos(rads_3) * 60 # speed of bullet
+                    ydis = math.sin(rads_3) * 60
+                    x = xdis + x3 + 17
+                    y = ydis + y3 + 17
                     make_slime(x, y,rounds + 7)
                 if (not x4 == -10000):
-                    xdis = math.cos(rads_1) * 60 # speed of bullet
-                    ydis = math.sin(rads_1) * 60
-                    x = xdis + x1 + 17
-                    y = ydis + y1 + 17
+                    xdis = math.cos(rads_4) * 60 # speed of bullet
+                    ydis = math.sin(rads_4) * 60
+                    x = xdis + x4 + 17
+                    y = ydis + y4 + 17
                     make_slime(x, y,rounds + 7)
 
         if (self.make_minds):
-            if (self.minds_timer.elapsed(0) >= 5 and self.make_minds_once): # spawns every 3 seconds
+            if (self.minds_timer.elapsed(0) >= 3 and self.make_minds_once): # spawns every 4 seconds
                 self.make_mids_once = 0
                 self.minds_timer.start()
                 value = random.randint(0,7) # to change the minds image
@@ -739,122 +776,171 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
                 self.make_mids_once = 1
 
         #events
-        if self.event_type == 1 and len(fly_sprites):# This event will spawn som enemys and until enemy are gone
+        if self.event_type == 1:# This event will spawn some enemys and until enemy are gone
             if self.event_timer.elapsed() >= 6 and self.event_value == 0:
                 self.event_timer.start()
                 self.event_value = random.randint(0,4)
                 bullet = EBULLETS(x1,0,4.712,glitch_ghost1_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,y2,0,glitch_ghost1_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(x3,HEIGHT,1.571,glitch_ghost1_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,y4,3.142,glitch_ghost1_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
             elif self.event_timer.elapsed() >= 6 and self.event_value == 1: #shoot from right side
                 self.event_timer.start()
                 self.event_value = random.randint(0,4)
                 bullet = EBULLETS(WIDTH,HEIGHT,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.1,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.2,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.3,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.4,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.5,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.6,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.7,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.8,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,HEIGHT*0.9,3.142,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH,0,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
             elif self.event_timer.elapsed() >= 6 and self.event_value == 2: #shoot from left side
                 self.event_timer.start()
                 self.event_value = random.randint(0,4)
                 bullet = EBULLETS(0,HEIGHT,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.1,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.2,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.3,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.4,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.5,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.6,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.7,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.8,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT*0.9,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,0,0,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
             elif self.event_timer.elapsed() >= 6 and self.event_value == 3: #shoot from top side
                 self.event_timer.start()
                 self.event_value = random.randint(0,4)
                 bullet = EBULLETS(WIDTH,100,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH * 0.1,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.2,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.3,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.4,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.5,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.6,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.7,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.8,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.9,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,0,1.571,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
             elif self.event_timer.elapsed() >= 6 and self.event_value == 4: #shoot from bottom side
                 self.event_timer.start()
                 self.event_value = random.randint(0,4)
                 bullet = EBULLETS(WIDTH,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.1,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.2,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.3,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.4,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.5,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.6,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.7,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.8,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(WIDTH*0.9,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
+                enemy_sprites.add(bullet)
                 bullet = EBULLETS(0,HEIGHT,4.713,small_rocks_img,1)
                 enemy_bullet_sprites.add(bullet)
-        
-        else:# reset all event variables for next event
-            self.event_value = 0
-            self.event_type == 0
+                enemy_sprites.add(bullet)
+            if len(fly_sprites) == 0:# reset all event variables for next event
+                self.reset_event = 1
+                self.event_value = 0
+                self.event_type = 0
+
         #Display health
         pygame.draw.rect(screen,RED,pygame.Rect(self.rect.x,self.rect.y- 10,map(self.health,0,self.MH,0,40),10),0)
         #Wait for the boss to enter
@@ -864,7 +950,7 @@ class GLITCH_BOSS(pygame.sprite.Sprite):
                 self.move_once = 1
                 self.out_of_map = 0
 
-        if (self.out_of_map):
+        if (self.out_of_map or self.event_type):
             self.rect.x = -500
             self.rect.y = -500
 
@@ -881,7 +967,7 @@ class MINES(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         
         self.special = special
-        self.health = health - special
+        self.health = health - special + 2
 
         self.bomb_once = 1
         self.bomb_time = StopWatch()
@@ -892,19 +978,21 @@ class MINES(pygame.sprite.Sprite):
             self.health -= 1
         if (pygame.sprite.spritecollideany(self,bulletx2_sprites)):
             self.health -= 2
-        if (self.health <= 0):
+        if (self.health <= 2):
             self.kill()
         
         if (pygame.sprite.spritecollideany(self,player_1_sprites) or pygame.sprite.spritecollideany(self,player_2_sprites) or pygame.sprite.spritecollideany(self,player_3_sprites) or pygame.sprite.spritecollideany(self,player_4_sprites)):
             explode = 1
-        if(self.bomb_time.elapsed(2) >= .1 and self.bomb_once):
-            self.health += 0.02
-            self.bomb_once = 0
-            self.bomb_time.start()
-        elif self.bomb_time.elapsed(2) > 0.05:
-            self.bomb_once = 1
         if self.special:
+            if(self.bomb_time.elapsed(2) >= .1 and self.bomb_once):
+                self.health += 0.02
+                self.bomb_once = 0
+                self.bomb_time.start()
+            elif self.bomb_time.elapsed(2) > 0.05:
+                self.bomb_once = 1
             self.image = pygame.transform.scale(self.image,(int(self.width * self.health/6),int(self.height * self.health/6)))
+            self.rect = self.image.get_rect()
+            self.rect.center = (self.x, self.y)
         if (self.health > 20): explode = 1
         if explode:
             trump_shoot_bullets_sound.play()
@@ -968,6 +1056,7 @@ class BOSS(pygame.sprite.Sprite):
         if (self.health <= 0):
             boss_background_music.stop()
             trump_dead_sound.play()
+            enemy_sprites.empty()
             self.kill()
         #Display health
         pygame.draw.rect(screen,RED,pygame.Rect(self.rect.x,self.rect.y- 10,map(self.health,0,self.MH,0,200),10),0)
@@ -1695,7 +1784,7 @@ class Player(pygame.sprite.Sprite):
                 self.shoot_runonce = 1
         elif (self.ability == 2): #sword
             self.ammo_accel = 0
-            self.regen_a = self.const_regen_ammo + rounds * 0.45
+            self.regen_a += self.const_regen_ammo + rounds * 0.45
             self.dash_time = 4 # 5 seconds per dash
             if (self.ability_timer.elapsed() > 50): #ability
                 pygame.draw.rect(screen,BLUE,pygame.Rect(self.rect.x,self.rect.y-3,34,3),0)
@@ -1984,7 +2073,7 @@ def start_menu():
             if (p3_runonce == 1):
                 global player_3
                 controller_count+=1
-                player_3 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img,p1a_img, 6, 6, 6, 0.7, 0.2,1)
+                player_3 = Player(WIDTH * .35, HEIGHT * .5, p1_img, p1d_img,p1a_img, 6, 6, 4.5, 0.7, 0.2,1)
                 player_3_sprites.add(player_3)
                 p3_runonce = 0
     except:
@@ -2004,7 +2093,7 @@ def start_menu():
                 global player_4, HARD_MODE
                 HARD_MODE = 1
                 controller_count+=1
-                player_4 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img,p2a_img, 4, 4, 6, 3, 0.35,2)
+                player_4 = Player(WIDTH * .35, HEIGHT * .4, p2_img, p2d_img,p2a_img, 4, 4, 5.5, 3, 0.35,2)
                 player_4_sprites.add(player_4)
                 p4_runonce = 0
     except:
@@ -2048,13 +2137,13 @@ def enemy_creater(list_1):
     global enemy_timer, wave_num, max_time, rounds, player_1, player_2, HARD_MODE
     if (not(len(enemy_sprites)) and (enemy_timer.elapsed() > list_1[wave_num][len(list_1[wave_num]) - 1][2])):
         wave_num += 1
-        if (wave_num == 10):
+        if (wave_num == 10):# resets everything
             wave_num = 0
             rounds += 1
             for n in range(0,9):
                 for i in range(0,len(list_1[n])):
                     list_1[n][i][4] = 1
-        try:
+        try:#respawn
             if (not len(player_1_sprites)):
                 player_1_sprites.add(player_1)
                 player_1.set_dead(0)
@@ -2062,10 +2151,33 @@ def enemy_creater(list_1):
                 player_2_sprites.add(player_2)
                 player_2.set_dead(0)
         except:pass
-            
+        try:
+            if (not len(player_3_sprites)):
+                player_3_sprites.add(player_3)
+                player_3.set_dead(0)
+        except:pass
+        try:
+            if (not len(player_4_sprites)):
+                player_4_sprites.add(player_4)
+                player_4.set_dead(0)
+        except:pass
+        
+        #WAVE FINISHED
+        global glitch_timer_list
+        timer_loc = 0
+        for i in glitch_timer_list:
+            if i == 0:
+                glitch_timer_list[timer_loc] = 1
+                break
+            timer_loc += 1
+        print(glitch_timer_list)
+        random_value = random.randint(1,99)
+        is_glitch = glitch_timer_list[random_value]
+        if is_glitch:
+            wave_num = 9
         enemy_timer.start()
         next_wave_sound.play()
-        print("New round")
+        print("New round: " , wave_num)
     for i in range(0,len(list_1[wave_num])):
         if (((list_1[wave_num][i][2]) < enemy_timer.elapsed() + 5) and list_1[wave_num][i][4]):
             list_1[wave_num][i][4] = 0
@@ -2078,9 +2190,10 @@ def enemy_creater(list_1):
             elif (list_1[wave_num][i][3] == 3):
                 make_ghost(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 4):
-                make_trump(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds+ HARD_MODE)
+                make_trump(list_1[wave_num][i][0],list_1[wave_num][i][1],rounds + HARD_MODE)
             elif (list_1[wave_num][i][3] == 5):
-                make_glitch(rounds + HARD_MODE)
+                make_glitch(rounds + HARD_MODE - 50)
+                glitch_timer_list = [0 for x in range(0,100) if x != 101]
 
 
 def level_1():
@@ -2111,55 +2224,55 @@ except:
     print("Player 1 not connected")
     """
     try:
-        if (joystick_0.get_axis(0) == -1 and joystick_0.get_axis(1) == -1 and joystick_0.get_axis(2) == -1 and joystick_0.get_axis(3) == -1):check_controller() #check controller  #
+        if (joystick_0.get_axis(0) == -1 and joystick_0.get_axis(1) == -1 and joystick_0.get_axis(2) == -1 and joystick_0.get_axis(5) == -1):check_controller() #check controller  #
         dash = 0
         fire = 0
         special = joystick_0.get_button(1)
-        if (joystick_0.get_axis(5) > 0):
-            fire = 1
         if (joystick_0.get_axis(4) > 0):
+            fire = 1
+        if (joystick_0.get_axis(3) > 0):
             dash = 1
-        player_1_sprites.update(joystick_0.get_axis(0),joystick_0.get_axis(1),joystick_0.get_axis(2),joystick_0.get_axis(3),fire,dash,special)
+        player_1_sprites.update(joystick_0.get_axis(0),joystick_0.get_axis(1),joystick_0.get_axis(2),joystick_0.get_axis(5),fire,dash,special)
     
     except:
         print("Player 1 not connected")
 
     try:
-        if (joystick_1.get_axis(0) == -1 and joystick_1.get_axis(1) == -1 and joystick_1.get_axis(2) == -1 and joystick_1.get_axis(3) == -1):check_controller() #check controller
+        if (joystick_1.get_axis(0) == -1 and joystick_1.get_axis(1) == -1 and joystick_1.get_axis(2) == -1 and joystick_1.get_axis(5) == -1):check_controller() #check controller
         fire = 0
         dash = 0
         special = joystick_1.get_button(1)
-        if (joystick_1.get_axis(5) > 0):
-            fire = 1
         if (joystick_1.get_axis(4) > 0):
+            fire = 1
+        if (joystick_1.get_axis(3) > 0):
             dash = 1
-        player_2_sprites.update(joystick_1.get_axis(0),joystick_1.get_axis(1),joystick_1.get_axis(2),joystick_1.get_axis(3),fire,dash,special)
+        player_2_sprites.update(joystick_1.get_axis(0),joystick_1.get_axis(1),joystick_1.get_axis(2),joystick_1.get_axis(5),fire,dash,special)
     except:
         print("Player 2 Not connected")
 
     try:
-        if (joystick_2.get_axis(0) == -1 and joystick_2.get_axis(1) == -1 and joystick_2.get_axis(2) == -1 and joystick_2.get_axis(3) == -1):check_controller() #check controller
+        if (joystick_2.get_axis(0) == -1 and joystick_2.get_axis(1) == -1 and joystick_2.get_axis(2) == -1 and joystick_2.get_axis(5) == -1):check_controller() #check controller
         fire = 0
         dash = 0
         special = joystick_2.get_button(1)
-        if (joystick_2.get_axis(5) > 0):
-            fire = 1
         if (joystick_2.get_axis(4) > 0):
+            fire = 1
+        if (joystick_2.get_axis(3) > 0):
             dash = 1
-        player_3_sprites.update(joystick_2.get_axis(0),joystick_2.get_axis(1),joystick_2.get_axis(2),joystick_2.get_axis(3),fire,dash,special)
+        player_3_sprites.update(joystick_2.get_axis(0),joystick_2.get_axis(1),joystick_2.get_axis(2),joystick_2.get_axis(5),fire,dash,special)
     except:
         print("Player 3 Not connected")
 
     try:
-        if (joystick_3.get_axis(0) == -1 and joystick_3.get_axis(1) == -1 and joystick_3.get_axis(2) == -1 and joystick_3.get_axis(3) == -1):check_controller() #check controller
+        if (joystick_3.get_axis(0) == -1 and joystick_3.get_axis(1) == -1 and joystick_3.get_axis(2) == -1 and joystick_3.get_axis(5) == -1):check_controller() #check controller
         fire = 0
         dash = 0
         special = joystick_3.get_button(1)
-        if (joystick_3.get_axis(5) > 0):
-            fire = 1
         if (joystick_3.get_axis(4) > 0):
+            fire = 1
+        if (joystick_3.get_axis(3) > 0):
             dash = 1
-        player_4_sprites.update(joystick_3.get_axis(0),joystick_3.get_axis(1),joystick_3.get_axis(2),joystick_3.get_axis(3),fire,dash,special)
+        player_4_sprites.update(joystick_3.get_axis(0),joystick_3.get_axis(1),joystick_3.get_axis(2),joystick_3.get_axis(5),fire,dash,special)
     except:
             print("Player 4 Not connected")
 
@@ -2261,6 +2374,7 @@ except:
                 except:
                     trump_sprites.update(-10000,-10000,-10000,-10000,-10000,-10000,-10000,-10000)
                     print("No players playing")
+
     fly_sprites.update()
     enemy_bomb_sprites.update()
     bullet_sprites.update()
@@ -2349,6 +2463,9 @@ glitching_out_sound = pygame.mixer.Sound(os.path.join(sounds,'glitchingout.wav')
 change_map_sound = pygame.mixer.Sound(os.path.join(sounds,'changemap5.9s.wav'))
 tele_behind_sound = pygame.mixer.Sound(os.path.join(sounds,'tele_behind.wav'))
 
+# Glitch timer Will include 100 0's 1 will represent spawn
+glitch_timer_list = [0 for x in range(0,100) if x != 101]
+
 location = 0 #Start in menu
 disable_map = 0
 p1_runonce = 1
@@ -2357,7 +2474,7 @@ p3_runonce = 1
 p4_runonce = 1
 map_runonce = 1
 points = 0
-wave_num = 9
+wave_num = 1
 rounds = 0
 HARD_MODE = 0
 enemy_timer = StopWatch()
